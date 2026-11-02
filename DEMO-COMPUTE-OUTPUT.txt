@@ -1,0 +1,28 @@
+== A2A compute purchase with verify-before-pay on the HSP flow ==
+   (mock HSP server; real compute; real EIP-712 signing; NO live funds)
+
+1) Provider agent delivers the transcode job
+   provider: 5s stereo 48kHz WAV -> Opus 48kHz mono (ffmpeg, run here)
+
+2) Buyer verifier checks the delivery ITSELF
+   PASS req-output: file present: OUTPUT.opus
+   PASS req-acceptance: 1 tests passing (executed by verifier)
+   verdict: PASS
+
+3) Verdict PASS -> payment agent runs the official HSP flow
+   [approval gate:create-order] pay_to=0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb token_total_raw=- -> approved (demo auto-approve)
+   [approval gate:sign] pay_to=0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb token_total_raw=1000000 -> approved (demo auto-approve)
+   [approval gate:submit] pay_to=0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb token_total_raw=1000000 -> approved (demo auto-approve)
+   HSP result: payment-finalized
+   team attribution verified: true
+   raw authorization amount (raw units): 1000000
+   tx: 0xMOCK66a72815c30bd93ddaedde01d8d7f5f55a744f97b6e01852be12e8f0a6a8
+   note: The payment has reached final confirmation.
+
+4) Bad delivery (wrong codec, truncated) -> gate refuses payment
+   PASS req-output: file present: OUTPUT.opus
+   FAIL req-acceptance: test run: 0 pass / 1 fail, exit 1
+   verdict: BLOCKED
+   payment created for bad delivery: NO | total orders created: 1 (only the verified one)
+
+== End. Verifier proved artifact properties only - not provenance, metering or creditworthiness. ==
