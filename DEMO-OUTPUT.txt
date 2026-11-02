@@ -1,0 +1,31 @@
+1) Worker finishes the bounty work and presents payment conditions
+    {
+  from_agent: 'bounty-worker-01',
+  recipient: '0xW0RKER00000000000000000000000000000001',
+  coin: 'USDC',
+  amountUsd: '25',
+  memo: 'Bounty: HSK Track 2 demo article'
+}
+2) Paying agent verifies the work ITSELF (hash check + real test run in confined dir)
+   verdict: PASS
+     req-1: PASS - sha256 match: DELIVERABLE.md
+     req-2: PASS - 2 tests passing (executed by verifier)
+   cart_mandate_id: cart_64e29bc3-2461-4f47-96a3-a39d0d496a78
+   merchant_authorization (ES256K JWT): eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJCb3VudHlQa...
+   order: {
+  payment_request_id: 'preq_200f4f4e-f15c-4b4d-80f5-7d3fcd2fe161',
+  payment_url: 'https://pay.mock/flow/flow_8975d22e-6165-4fb4-9a0d-6221f584c054',
+  multi_pay: false
+}
+   status now: awaiting_payer (order is payment-required; nothing has settled)
+3) MOCK payer step: simulates the EIP-3009 wallet signature at payment_url (not an HSP API)
+   payment finalized by mock payer, request_id (ID5): req_6a9a47e6-874a-4c5b-88bf-b8b7a8382e44
+4) Settlement webhook arrives (flat spec payload); receiver verifies signature + fields + dedupes
+   first delivery: {"ok":true,"duplicate":false,"status":"payment-finalized","payment_request_id":"preq_200f4f4e-f15c-4b4d-80f5-7d3fcd2fe161"}
+   replayed delivery: {"ok":true,"duplicate":true,"status":"payment-finalized","payment_request_id":"preq_200f4f4e-f15c-4b4d-80f5-7d3fcd2fe161"} (idempotent)
+5) NL interface
+   Q: what is the payment status?
+   A: Latest payment settled (payment-finalized), payment_request preq_200f4f4e-f15c-4b4d-80f5-7d3fcd2fe161.
+6) Gate check: tampered brief expectation -> real verifier fails -> nothing is created
+   status: verification_failed | gateway orders: 1 (refusal created nothing)
+   A: Payment was refused: verification did not pass (req-1: sha256 mismatch on DELIVERABLE.md (expected deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef, got e27677ef8376a4e3f947838e5957cf00e85f8da5e4d892212cf8467c0c483dc2)).
