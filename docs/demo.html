@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BountyPilot HSP - Interactive Demo</title>
+<style>
+  :root { --ok:#1a7f37; --bad:#cf222e; --muted:#6e6e68; --line:#e7e5de; --ink:#1c1c1a; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; color: var(--ink); background: #f7f6f2; -webkit-font-smoothing: antialiased; }
+  main { max-width: 520px; margin: 0 auto; padding: 40px 18px 72px; }
+  h1 { font-size: 26px; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 10px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 15px; line-height: 1.55; }
+  .banner { border: 1px solid #eed9a4; background: #fdf8ec; border-radius: 14px; padding: 12px 14px; font-size: 13.5px; margin-bottom: 24px; line-height: 1.55; color: #5d4e2a; }
+  .banner strong { color: #4a3f1f; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(28,28,26,.04), 0 10px 28px rgba(28,28,26,.05); }
+  .job { font-size: 16px; line-height: 1.65; }
+  .job b { display: block; font-size: 12px; font-weight: 700; color: #a3a099; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 8px; }
+  button { font: inherit; font-size: 15px; font-weight: 600; padding: 13px 20px; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; margin: 12px 8px 0 0; transition: transform .06s ease, background .15s ease, border-color .15s ease; }
+  button:active { transform: scale(.985); }
+  button.primary { background: var(--ink); border-color: var(--ink); color: #fff; }
+  button.primary:hover { background: #000; }
+  button:not(.primary):hover { background: #f4f3ef; }
+  button:disabled { opacity: .5; cursor: default; }
+  .verdict { display: none; border-radius: 18px; padding: 18px 20px; font-size: 16px; line-height: 1.55; margin-bottom: 18px; border: 1px solid; }
+  .verdict.pass { display: block; border-color: #b7e4c3; background: #eefbf1; color: #14532d; animation: rise .3s ease; }
+  .verdict.fail { display: block; border-color: #f3c2c5; background: #fdf0f0; color: #7f1d22; animation: rise .3s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  details { margin-top: 2px; font-size: 13.5px; }
+  summary { cursor: pointer; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+  td { padding: 8px 4px; border-top: 1px solid var(--line); vertical-align: top; line-height: 1.5; color: #3d3d39; }
+  td.st { width: 56px; font-weight: 700; white-space: nowrap; font-size: 11px; padding-top: 10px; }
+  td.st.pass { color: var(--ok); } td.st.fail { color: var(--bad); } td.st.pend { color: #b9b7ae; }
+  span.pend { color: var(--muted); } span.pass { color: var(--ok); } span.fail { color: var(--bad); }
+  .hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; word-break: break-all; color: var(--muted); }
+  .receipt { border: 2px dashed var(--ok); border-radius: 18px; padding: 18px 20px; background: #fff; display: none; font-size: 14.5px; line-height: 1.6; margin-bottom: 18px; }
+  .receipt.refused { border-color: var(--bad); }
+  .receipt h2 { font-size: 16px; margin: 0 0 8px; }
+  .receipt p { margin: 0; }
+  .simlabel { display: inline-block; background: var(--bad); color: #fff; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 3px 7px; letter-spacing: .06em; }
+  .spin { color: var(--muted); font-size: 14px; }
+  a { color: #4338ca; text-decoration: none; border-bottom: 1px solid #d9d4f5; }
+  @media (max-width: 480px) {
+    main { padding: 28px 16px 64px; }
+    button { width: 100%; margin: 10px 0 0; }
+    .spin { display: block; margin-top: 10px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>BountyPilot HSP - interactive demo</h1>
+  <p class="sub">An AI seller says it finished the job you ordered. This page puts you in the buyer's seat: check the delivered work yourself, then decide whether to pay. BountyPilot's payment agent is designed to authorise payment only for work that passes the buyer's own checks - this page shows that decision flow.</p>
+  <div class="banner"><strong>Honest-demo notice.</strong> The delivered file below is a pre-computed sample from the project repository, checked for real in your browser. The payment is <strong>simulated</strong>: no payment is created, signed, or sent, and no transaction exists on any network.</div>
+
+  <div class="card job">
+    <b>The job</b>
+    Convert a 5-second test tone into Opus audio.<br>
+    Seller's price: <strong>US$1.00</strong> (illustrative amount; simulated).<br>
+    The seller says: <em>done</em>.<br>
+    <button class="primary" id="check">Check the delivered work</button>
+    <button id="bad">See a bad delivery instead</button>
+    <span class="spin" id="spin"></span>
+  </div>
+
+  <div class="verdict" id="verdict"></div>
+
+  <div class="card" id="decision" style="display:none"></div>
+
+  <div class="card" id="evidence" style="display:none">
+    <details>
+      <summary>Technical evidence (what was actually checked)</summary>
+      <table id="checks">
+        <tr><td class="st pend" id="c0s">-</td><td id="c0d">Fetch the artifact bytes from the repository</td></tr>
+        <tr><td class="st pend" id="c1s">-</td><td id="c1d">Ogg container magic ("OggS" at byte 0)</td></tr>
+        <tr><td class="st pend" id="c2s">-</td><td id="c2d">Opus codec identification ("OpusHead" header)</td></tr>
+        <tr><td class="st pend" id="c3s">-</td><td id="c3d">OpusHead header fields as declared by the encoder: channel count = 1, input sample rate field = 48000 Hz (informational header values)</td></tr>
+        <tr><td class="st pend" id="c4s">-</td><td id="c4d">Decodes as audio in this browser; decoded playback duration 5.0s &plusmn; 0.6s</td></tr>
+        <tr><td class="st pend" id="c5s">-</td><td id="c5d">Artifact SHA-256 fingerprint, computed for inspection only. Not an acceptance check: this page has no trusted expected hash to compare against.</td></tr>
+      </table>
+    </details>
+  </div>
+
+  <div class="receipt" id="receipt"></div>
+
+  <p class="sub" style="margin-top:20px;">The repository also includes 53 automated tests covering the verification and payment-flow code. Source: <a href="https://github.com/thebunnygoyal/bountypilot-hsp">github.com/thebunnygoyal/bountypilot-hsp</a></p>
+</main>
+<script>
+const BASE = 'https://raw.githubusercontent.com/thebunnygoyal/bountypilot-hsp/main/compute-artifacts/';
+const GOOD = 'OUTPUT.opus', BAD = 'input-tone.wav';
+const $ = id => document.getElementById(id);
+const setCheck = (i, ok, note) => {
+  const s = $('c'+i+'s'), d = $('c'+i+'d');
+  s.className = 'st ' + (ok === null ? 'pend' : ok ? 'pass' : 'fail');
+  s.textContent = ok === null ? '...' : ok ? 'PASS' : 'FAIL';
+  if (note) d.innerHTML = d.innerHTML.replace(/<br><span.*$/s, '') + '<br><span class="' + (ok === null ? 'pend' : ok ? 'pass' : 'fail') + '">' + note + '</span>';
+};
+const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+const findAscii = (u8, s, max) => { outer: for (let i = 0; i < Math.min(u8.length - s.length, max); i++) { for (let j = 0; j < s.length; j++) if (u8[i+j] !== s.charCodeAt(j)) continue outer; return i; } return -1; };
+
+async function runCheck(file) {
+  $('verdict').className = 'verdict'; $('verdict').style.display = 'none';
+  $('decision').style.display = 'none'; $('receipt').style.display = 'none';
+  $('evidence').style.display = 'none';
+  for (let i = 0; i < 6; i++) setCheck(i, null);
+  $('check').disabled = $('bad').disabled = true;
+  $('spin').textContent = 'Checking the delivered file...';
+
+  let buf;
+  try {
+    const r = await fetch(BASE + file);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    buf = await r.arrayBuffer();
+    setCheck(0, true, buf.byteLength + ' bytes received');
+  } catch (e) {
+    setCheck(0, false, 'fetch failed: ' + e.message);
+    $('evidence').style.display = 'block';
+    $('spin').textContent = '';
+    showVerdict(false, 'The delivered file could not even be retrieved, so the agent does not authorise payment.');
+    showRefusal('Could not fetch the sample artifact, so the agent does not authorise payment.');
+    $('check').disabled = $('bad').disabled = false;
+    return;
+  }
+
+  const u8 = new Uint8Array(buf);
+  const ogg = findAscii(u8, 'OggS', 4) === 0;
+  setCheck(1, ogg, ogg ? 'OggS at byte 0' : 'no OggS magic - not an Ogg container');
+  const headAt = findAscii(u8, 'OpusHead', 4096);
+  setCheck(2, headAt >= 0, headAt >= 0 ? 'OpusHead at byte ' + headAt : 'no OpusHead - not an Opus stream');
+  if (headAt >= 0) {
+    const dv = new DataView(buf);
+    const ch = dv.getUint8(headAt + 9);
+    const rate = dv.getUint32(headAt + 12, true);
+    setCheck(3, ch === 1 && rate === 48000, 'OpusHead channel count=' + ch + ', input sample rate field=' + rate + ' Hz');
+  } else {
+    setCheck(3, false, 'skipped - no Opus header to read');
+  }
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const audio = await ctx.decodeAudioData(buf.slice(0));
+    const okDur = Math.abs(audio.duration - 5.0) <= 0.6;
+    setCheck(4, okDur, 'decoded playback duration=' + audio.duration.toFixed(2) + 's, decoded channels=' + audio.numberOfChannels + ' (values after browser decoding/resampling)');
+    ctx.close();
+  } catch (e) {
+    setCheck(4, false, 'browser could not decode: ' + e.message);
+  }
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  setCheck(5, null, '<span class="hash">' + hex(digest) + '</span>');
+  $('c5s').textContent = 'HASH';
+
+  const allPass = [1,2,3,4].every(i => $('c'+i+'s').classList.contains('pass'));
+  $('spin').textContent = '';
+  $('evidence').style.display = 'block';
+  if (allPass) {
+    showVerdict(true, 'The work passes your checks. It is the right kind of audio file, it really is Opus, it plays as audio, and its length matches the order (5 seconds, within the accepted tolerance).');
+    showDecision();
+  } else {
+    showVerdict(false, 'The work fails your checks. The seller delivered the wrong kind of file - it is not the Opus audio you ordered.');
+    showRefusal('One or more acceptance checks failed, so the agent does not authorise payment.');
+  }
+  $('check').disabled = $('bad').disabled = false;
+}
+
+function showVerdict(pass, msg) {
+  const v = $('verdict');
+  v.className = 'verdict ' + (pass ? 'pass' : 'fail');
+  v.textContent = (pass ? 'PASS: ' : 'FAIL: ') + msg;
+}
+
+function showDecision() {
+  const d = $('decision');
+  d.style.display = 'block';
+  d.innerHTML = '<div class="job"><b>Your decision</b>The work passed. Pay the seller US$1.00 (illustrative amount; simulated)?<br>'
+    + '<button class="primary" id="pay">Pay (simulated)</button></div>';
+  $('pay').onclick = () => {
+    const r = $('receipt');
+    r.className = 'receipt';
+    r.style.display = 'block';
+    r.innerHTML = '<h2><span class="simlabel">SIMULATED</span> Payment authorised</h2>'
+      + '<p>Because the work passed your checks, the agent would now authorise the HSP payment for <strong>US$1.00 (illustrative amount; simulated)</strong>. '
+      + '<strong>No payment was created, signed, or sent. There is no transaction hash and nothing exists on any network.</strong></p>';
+    r.scrollIntoView({behavior:'smooth', block:'nearest'});
+  };
+}
+
+function showRefusal(reason) {
+  const r = $('receipt');
+  r.className = 'receipt refused';
+  r.style.display = 'block';
+  r.innerHTML = '<h2><span class="simlabel">SIMULATED</span> Payment refused</h2>'
+    + '<p>' + reason + ' <strong>No payment was created, signed, or sent, and nothing was authorised.</strong></p>';
+  r.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+$('check').onclick = () => runCheck(GOOD);
+$('bad').onclick = () => runCheck(BAD);
+</script>
+</body>
+</html>
