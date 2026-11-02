@@ -10,6 +10,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Synthesize input tone (5s, 48kHz, mono)
         run: ffmpeg -y -f lavfi -i "sine=frequency=440:duration=5:sample_rate=48000" -ac 1 compute-artifacts/input-tone.wav
       - name: Run the demo compute job (transcode to opus)
