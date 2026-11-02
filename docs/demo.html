@@ -165,6 +165,7 @@ async function runCheck(file) {
 function showVerdict(pass, msg) {
   const v = $('verdict');
   v.className = 'verdict ' + (pass ? 'pass' : 'fail');
+  v.style.display = 'block';
   v.textContent = (pass ? 'PASS: ' : 'FAIL: ') + msg;
 }
 
