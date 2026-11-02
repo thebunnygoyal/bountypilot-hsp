@@ -41,6 +41,7 @@
   .simlabel { display: inline-block; background: var(--bad); color: #fff; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 3px 7px; letter-spacing: .06em; }
   .spin { color: var(--muted); font-size: 14px; }
   a { color: #4338ca; text-decoration: none; border-bottom: 1px solid #d9d4f5; }
+  audio { width: 100%; margin: 10px 0 4px; display: block; }
   @media (max-width: 480px) {
     main { padding: 28px 16px 64px; }
     button { width: 100%; margin: 10px 0 0; }
@@ -59,6 +60,9 @@
     Convert a 5-second test tone into Opus audio.<br>
     Seller's price: <strong>US$1.00</strong> (illustrative amount; simulated).<br>
     The seller says: <em>done</em>.<br>
+    <b>The delivered file</b>
+    Press play to hear the audio the seller handed over.
+    <audio controls preload="none" src="https://raw.githubusercontent.com/thebunnygoyal/bountypilot-hsp/main/compute-artifacts/OUTPUT.opus">Your browser cannot play this Ogg/Opus file - the checks below verify it directly.</audio>
     <button class="primary" id="check">Check the delivered work</button>
     <button id="bad">See a bad delivery instead</button>
     <span class="spin" id="spin"></span>
