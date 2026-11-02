@@ -1,0 +1,14 @@
+{
+  "requirements": [
+    {
+      "id": "req-1",
+      "text": "DELIVERABLE.md present and byte-identical to the agreed draft",
+      "check": { "type": "file_hash", "path": "DELIVERABLE.md", "sha256": "e27677ef8376a4e3f947838e5957cf00e85f8da5e4d892212cf8467c0c483dc2" }
+    },
+    {
+      "id": "req-2",
+      "text": "deliverable test suite passes (executed by the verifier, not reported by the worker)",
+      "check": { "type": "test_run" }
+    }
+  ]
+}
