@@ -1,0 +1,20 @@
+{
+  "name": "bountypilot-hsp",
+  "version": "0.4.1",
+  "private": true,
+  "type": "module",
+  "description": "A2A payment agent for HSK Chain Horizon Hackathon Track 2: verify delivered work, then settle via HSP (HashKey Settlement Protocol)",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "demo": "node demo.mjs",
+    "demo:compute": "node demo-compute.mjs",
+    "demo:mcp": "node demo-compute.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.4.0",
+    "@noble/secp256k1": "^3.2.0"
+  }
+}
