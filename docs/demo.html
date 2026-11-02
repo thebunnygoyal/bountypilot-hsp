@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BountyPilot HSP - Interactive Demo</title>
+<style>
+  :root { --ok:#1a7f37; --bad:#cf222e; --muted:#57606a; --line:#d0d7de; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; color: #1f2328; background: #f6f8fa; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 8px 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .banner { border: 1px solid #eac54f; background: #fff8c5; border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+  .steps li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12px; color: var(--muted); }
+  .steps li.active { border-color: #0969da; color: #0969da; font-weight: 600; }
+  .steps li.done { border-color: var(--ok); color: var(--ok); }
+  .steps li.failed { border-color: var(--bad); color: var(--bad); }
+  button { font: inherit; font-size: 14px; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: #f6f8fa; cursor: pointer; margin-right: 8px; }
+  button.primary { background: #1f883d; border-color: #1f883d; color: #fff; }
+  button:disabled { opacity: .5; cursor: default; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td { padding: 6px 4px; border-top: 1px solid var(--line); vertical-align: top; }
+  td.st { width: 70px; font-weight: 600; white-space: nowrap; }
+  .pass { color: var(--ok); } .fail { color: var(--bad); } .pend { color: var(--muted); }
+  .hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; word-break: break-all; color: var(--muted); }
+  .receipt { border: 2px dashed var(--ok); border-radius: 8px; padding: 14px; background: #fff; display: none; }
+  .receipt.refused { border-color: var(--bad); }
+  .receipt h2 { font-size: 15px; margin: 0 0 6px; }
+  .simlabel { display: inline-block; background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 6px; letter-spacing: .04em; }
+  .log { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); white-space: pre-wrap; max-height: 180px; overflow: auto; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; }
+  a { color: #0969da; }
+</style>
+</head>
+<body>
+<main>
+  <h1>BountyPilot HSP - interactive demo</h1>
+  <p class="sub">Verify-before-pay payment agent for compute purchases, built for the HSK Chain Horizon Hackathon (Track 2: Agent Payments &amp; A2A Settlement with HSP).</p>
+  <div class="banner">
+    <strong>Honest-demo notice.</strong> This page verifies a real, pre-computed sample job result from the project repository in your browser. The HSP payment flow below is <strong>simulated</strong>: no payment is created, signed, or sent, and no transaction exists on any network. The sample job (a 5-second tone transcoded to Opus) was produced by the repository's demo pipeline, not by this page.
+  </div>
+
+  <div class="card">
+    <ol class="steps" id="steps">
+      <li data-s="quote">1. Quote accepted (SIMULATED; no payment authorised)</li>
+      <li data-s="delivered">2. Sample result delivered</li>
+      <li data-s="verified">3. Acceptance checks</li>
+      <li data-s="settled">4. Payment decision</li>
+    </ol>
+    <button class="primary" id="run">Run demo purchase (sample result)</button>
+    <button id="tamper">Run tamper test (wrong file - expect refusal)</button>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:15px;margin:0 0 8px;">Acceptance checks</h2>
+    <table id="checks">
+      <tr><td class="st pend" id="c0s">-</td><td id="c0d">Fetch the artifact bytes from the repository</td></tr>
+      <tr><td class="st pend" id="c1s">-</td><td id="c1d">Ogg container magic ("OggS" at byte 0)</td></tr>
+      <tr><td class="st pend" id="c2s">-</td><td id="c2d">Opus codec identification ("OpusHead" header)</td></tr>
+      <tr><td class="st pend" id="c3s">-</td><td id="c3d">OpusHead header fields as declared by the encoder: channel count = 1, input sample rate field = 48000 Hz (informational header values)</td></tr>
+      <tr><td class="st pend" id="c4s">-</td><td id="c4d">Decodes as audio in this browser; decoded playback duration 5.0s &plusmn; 0.6s</td></tr>
+      <tr><td class="st pend" id="c5s">-</td><td id="c5d">Artifact SHA-256 fingerprint, computed for inspection only. Not an acceptance check: this page has no trusted expected hash to compare against.</td></tr>
+    </table>
+  </div>
+
+  <div class="receipt" id="receipt"></div>
+
+  <p class="sub" style="margin-top:20px;">Source and full test suite: <a href="https://github.com/thebunnygoyal/bountypilot-hsp">github.com/thebunnygoyal/bountypilot-hsp</a></p>
+</main>
+<script>
+const BASE = 'https://raw.githubusercontent.com/thebunnygoyal/bountypilot-hsp/main/compute-artifacts/';
+const GOOD = 'OUTPUT.opus', BAD = 'input-tone.wav';
+const log = m => { const el = document.getElementById('log'); el.textContent += m + '\n'; el.scrollTop = el.scrollHeight; };
+const setStep = (id, cls) => { document.querySelectorAll('#steps li').forEach(li => { if (li.dataset.s === id) li.className = cls; }); };
+const setCheck = (i, ok, note) => {
+  const s = document.getElementById('c'+i+'s'), d = document.getElementById('c'+i+'d');
+  s.className = 'st ' + (ok === null ? 'pend' : ok ? 'pass' : 'fail');
+  s.textContent = ok === null ? '...' : ok ? 'PASS' : 'FAIL';
+  if (note) d.innerHTML = d.innerHTML.replace(/<br><span.*$/s, '') + '<br><span class="' + (ok === null ? 'pend' : ok ? 'pass' : 'fail') + '">' + note + '</span>';
+};
+const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+const findAscii = (u8, s, max) => { outer: for (let i = 0; i < Math.min(u8.length - s.length, max); i++) { for (let j = 0; j < s.length; j++) if (u8[i+j] !== s.charCodeAt(j)) continue outer; return i; } return -1; };
+
+async function runDemo(file) {
+  document.getElementById('log').textContent = '';
+  document.getElementById('receipt').style.display = 'none';
+  for (let i = 0; i < 6; i++) setCheck(i, null);
+  ['quote','delivered','verified','settled'].forEach(s => setStep(s, ''));
+  document.getElementById('run').disabled = document.getElementById('tamper').disabled = true;
+  const fail = msg => { setStep('settled', 'failed'); showReceipt(false, msg); finish(); };
+  const finish = () => { document.getElementById('run').disabled = document.getElementById('tamper').disabled = false; };
+
+  setStep('quote', 'done'); log('Quote accepted for the sample job: US$1.00 (illustrative amount; simulated). No payment is authorised at this point - verification comes first.');
+  log('Fetching sample job result: ' + file);
+
+  let buf;
+  try {
+    const r = await fetch(BASE + file);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    buf = await r.arrayBuffer();
+    setCheck(0, true, buf.byteLength + ' bytes received');
+  } catch (e) {
+    setCheck(0, false, 'fetch failed: ' + e.message);
+    return fail('Could not fetch the sample artifact, so the agent does not authorise payment.');
+  }
+  setStep('delivered', 'done');
+
+  const u8 = new Uint8Array(buf);
+  const ogg = findAscii(u8, 'OggS', 4) === 0;
+  setCheck(1, ogg, ogg ? 'OggS at byte 0' : 'no OggS magic - not an Ogg container');
+  const headAt = findAscii(u8, 'OpusHead', 4096);
+  setCheck(2, headAt >= 0, headAt >= 0 ? 'OpusHead at byte ' + headAt : 'no OpusHead - not an Opus stream');
+
+  if (headAt >= 0) {
+    const dv = new DataView(buf);
+    const ch = dv.getUint8(headAt + 9);
+    const rate = dv.getUint32(headAt + 12, true);
+    setCheck(3, ch === 1 && rate === 48000, 'OpusHead channel count=' + ch + ', input sample rate field=' + rate + ' Hz');
+  } else {
+    setCheck(3, false, 'skipped - no Opus header to read');
+  }
+
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const audio = await ctx.decodeAudioData(buf.slice(0));
+    const okDur = Math.abs(audio.duration - 5.0) <= 0.6;
+    setCheck(4, okDur, 'decoded playback duration=' + audio.duration.toFixed(2) + 's, decoded channels=' + audio.numberOfChannels + ' (values after browser decoding/resampling)');
+    ctx.close();
+  } catch (e) {
+    setCheck(4, false, 'browser could not decode: ' + e.message);
+  }
+
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  setCheck(5, null, '<span class="hash">' + hex(digest) + '</span>'); document.getElementById('c5s').textContent='HASH';
+  setStep('verified', 'done');
+
+  const allPass = [1,2,3,4].every(i => document.getElementById('c'+i+'s').classList.contains('pass'));
+  if (allPass) { setStep('settled', 'done'); showReceipt(true); } else { setStep('settled', 'failed'); showReceipt(false, 'One or more acceptance checks failed, so the agent does not authorise payment.'); }
+  finish();
+}
+
+function showReceipt(settled, reason) {
+  const r = document.getElementById('receipt');
+  r.className = 'receipt' + (settled ? '' : ' refused');
+  r.style.display = 'block';
+  r.innerHTML = settled
+    ? '<h2><span class="simlabel">SIMULATED</span> Payment authorised</h2>'
+      + '<p style="font-size:13px;">All acceptance checks passed, so only now would the agent authorise the HSP payment for <strong>US$1.00 (illustrative amount; simulated)</strong>. '
+      + '<strong>No payment was created, signed, or sent. There is no transaction hash and nothing exists on any network.</strong></p>'
+    : '<h2><span class="simlabel">SIMULATED</span> Payment refused</h2>'
+      + '<p style="font-size:13px;">' + reason + ' <strong>No payment was created, signed, or sent, and nothing was authorised.</strong></p>';
+}
+
+document.getElementById('run').onclick = () => runDemo(GOOD);
+document.getElementById('tamper').onclick = () => runDemo(BAD);
+</script>
+</body>
+</html>
