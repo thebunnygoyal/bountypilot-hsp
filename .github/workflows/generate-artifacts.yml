@@ -1,0 +1,25 @@
+name: Generate demo compute artifacts
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Synthesize input tone (5s, 48kHz, mono)
+        run: ffmpeg -y -f lavfi -i "sine=frequency=440:duration=5:sample_rate=48000" -ac 1 compute-artifacts/input-tone.wav
+      - name: Run the demo compute job (transcode to opus)
+        run: ffmpeg -y -i compute-artifacts/input-tone.wav -c:a libopus compute-artifacts/OUTPUT.opus
+      - name: Verify artifact properties
+        run: ffprobe -v error -print_format json -show_format -show_streams compute-artifacts/OUTPUT.opus
+      - name: Commit artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compute-artifacts/input-tone.wav compute-artifacts/OUTPUT.opus
+          git commit -m "Generate demo compute artifacts (5s tone, opus transcode)"
+          git push
