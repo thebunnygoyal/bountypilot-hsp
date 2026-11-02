@@ -1,0 +1,331 @@
+> bountypilot-hsp@0.4.0 test
+> node --test
+
+TAP version 13
+# Subtest: transcode output meets the agreed acceptance properties
+ok 1 - transcode output meets the agreed acceptance properties
+  ---
+  duration_ms: 30.345787
+  type: 'test'
+  ...
+# Subtest: deliverable covers the Track 2 topic
+ok 2 - deliverable covers the Track 2 topic
+  ---
+  duration_ms: 0.548933
+  type: 'test'
+  ...
+# Subtest: deliverable is substantive
+ok 3 - deliverable is substantive
+  ---
+  duration_ms: 0.124441
+  type: 'test'
+  ...
+# Subtest: eip712 digest is deterministic and domain-sensitive
+ok 4 - eip712 digest is deterministic and domain-sensitive
+  ---
+  duration_ms: 8.500351
+  type: 'test'
+  ...
+# Subtest: signs a 65-byte r||s||v signature that recovers the payer address
+ok 5 - signs a 65-byte r||s||v signature that recovers the payer address
+  ---
+  duration_ms: 6.795795
+  type: 'test'
+  ...
+# Subtest: a different key or tampered message recovers a different address
+ok 6 - a different key or tampered message recovers a different address
+  ---
+  duration_ms: 7.563868
+  type: 'test'
+  ...
+# Subtest: nested struct support (permit2-style TokenPermissions)
+ok 7 - nested struct support (permit2-style TokenPermissions)
+  ---
+  duration_ms: 3.436023
+  type: 'test'
+  ...
+# Subtest: valid JWT verifies with issuer check
+ok 8 - valid JWT verifies with issuer check
+  ---
+  duration_ms: 2.202031
+  type: 'test'
+  ...
+# Subtest: tampered contents (cart_hash mismatch) rejected
+ok 9 - tampered contents (cart_hash mismatch) rejected
+  ---
+  duration_ms: 0.750093
+  type: 'test'
+  ...
+# Subtest: wrong issuer rejected
+ok 10 - wrong issuer rejected
+  ---
+  duration_ms: 0.531137
+  type: 'test'
+  ...
+# Subtest: malformed tokens return ok:false, never throw
+ok 11 - malformed tokens return ok:false, never throw
+  ---
+  duration_ms: 0.149872
+  type: 'test'
+  ...
+# Subtest: expired token rejected
+ok 12 - expired token rejected
+  ---
+  duration_ms: 0.548435
+  type: 'test'
+  ...
+# Subtest: wrong key rejected
+ok 13 - wrong key rejected
+  ---
+  duration_ms: 1.115143
+  type: 'test'
+  ...
+# Subtest: client signs and sends the SAME canonical wire bytes
+ok 14 - client signs and sends the SAME canonical wire bytes
+  ---
+  duration_ms: 2.902133
+  type: 'test'
+  ...
+# Subtest: gateway hashes raw wire bytes: any byte-level change breaks auth
+ok 15 - gateway hashes raw wire bytes: any byte-level change breaks auth
+  ---
+  duration_ms: 1.054692
+  type: 'test'
+  ...
+# Subtest: order lifecycle: created as payment-required, settles only after mock payer step
+ok 16 - order lifecycle: created as payment-required, settles only after mock payer step
+  ---
+  duration_ms: 2.729135
+  type: 'test'
+  ...
+# Subtest: duplicate cart_mandate_id -> HTTP 400 code 40001
+ok 17 - duplicate cart_mandate_id -> HTTP 400 code 40001
+  ---
+  duration_ms: 1.142102
+  type: 'test'
+  ...
+# Subtest: bad auth -> HTTP 401 code 10002
+ok 18 - bad auth -> HTTP 401 code 10002
+  ---
+  duration_ms: 0.131628
+  type: 'test'
+  ...
+# Subtest: not found -> HTTP 404 code 10003
+ok 19 - not found -> HTTP 404 code 10003
+  ---
+  duration_ms: 0.294807
+  type: 'test'
+  ...
+# Subtest: client throws when HTTP 200 but body code !== 0
+ok 20 - client throws when HTTP 200 but body code !== 0
+  ---
+  duration_ms: 0.718924
+  type: 'test'
+  ...
+# Subtest: request timestamp outside +-300s is rejected both directions
+ok 21 - request timestamp outside +-300s is rejected both directions
+  ---
+  duration_ms: 0.731482
+  type: 'test'
+  ...
+# Subtest: nonce replay is rejected
+ok 22 - nonce replay is rejected
+  ---
+  duration_ms: 1.180177
+  type: 'test'
+  ...
+# Subtest: getPayments enforces exactly one query parameter
+ok 23 - getPayments enforces exactly one query parameter
+  ---
+  duration_ms: 0.413766
+  type: 'test'
+  ...
+# Subtest: HttpMcpTransport handles SSE responses and session ids
+ok 24 - HttpMcpTransport handles SSE responses and session ids
+  ---
+  duration_ms: 21.883429
+  type: 'test'
+  ...
+# Subtest: canonicalJson sorts keys recursively and is compact
+ok 25 - canonicalJson sorts keys recursively and is compact
+  ---
+  duration_ms: 0.576281
+  type: 'test'
+  ...
+# Subtest: cartHash is key-order independent
+ok 26 - cartHash is key-order independent
+  ---
+  duration_ms: 0.965499
+  type: 'test'
+  ...
+# Subtest: payment mandate maps ID4=payment_request_id and fresh request_id (ID5)
+ok 27 - payment mandate maps ID4=payment_request_id and fresh request_id (ID5)
+  ---
+  duration_ms: 0.222578
+  type: 'test'
+  ...
+# Subtest: cart contents require the official network fields
+ok 28 - cart contents require the official network fields
+  ---
+  duration_ms: 0.365154
+  type: 'test'
+  ...
+# Subtest: connect enforces the 8 required tools incl. finalize_payment
+ok 29 - connect enforces the 8 required tools incl. finalize_payment
+  ---
+  duration_ms: 1.170879
+  type: 'test'
+  ...
+# Subtest: happy path: order -> prepare -> sign -> finalize -> submit -> finalized, attributed to team
+ok 30 - happy path: order -> prepare -> sign -> finalize -> submit -> finalized, attributed to team
+  ---
+  duration_ms: 6.896902
+  type: 'test'
+  ...
+# Subtest: signature is over the server-returned eip712 (EIP-3009 TransferWithAuthorization)
+ok 31 - signature is over the server-returned eip712 (EIP-3009 TransferWithAuthorization)
+  ---
+  duration_ms: 4.122512
+  type: 'test'
+  ...
+# Subtest: aborts before signing when the sign confirmation is denied; nothing is finalized
+ok 32 - aborts before signing when the sign confirmation is denied; nothing is finalized
+  ---
+  duration_ms: 0.237144
+  type: 'test'
+  ...
+# Subtest: refuses to sign when payer balance is below token_total_raw
+ok 33 - refuses to sign when payer balance is below token_total_raw
+  ---
+  duration_ms: 0.43875
+  type: 'test'
+  ...
+# Subtest: expired quote at finalize triggers error 30043 -> re-prepare and re-sign
+ok 34 - expired quote at finalize triggers error 30043 -> re-prepare and re-sign
+  ---
+  duration_ms: 4.979938
+  type: 'test'
+  ...
+# Subtest: payment-safe is reported as on-chain but NOT final
+ok 35 - payment-safe is reported as on-chain but NOT final
+  ---
+  duration_ms: 1.685199
+  type: 'test'
+  ...
+# Subtest: payment-timeout keeps polling the same payment, then reports pending-confirmation at the cap
+ok 36 - payment-timeout keeps polling the same payment, then reports pending-confirmation at the cap
+  ---
+  duration_ms: 1.621061
+  type: 'test'
+  ...
+# Subtest: team attribution mismatch is surfaced, not claimed
+ok 37 - team attribution mismatch is surfaced, not claimed
+  ---
+  duration_ms: 1.461511
+  type: 'test'
+  ...
+# Subtest: gas_fee_advanced=false adds the fee into token_total_raw
+ok 38 - gas_fee_advanced=false adds the fee into token_total_raw
+  ---
+  duration_ms: 2.165388
+  type: 'test'
+  ...
+# Subtest: create_order rejects a malformed cart (x402 v1) and bad pay_to
+ok 39 - create_order rejects a malformed cart (x402 v1) and bad pay_to
+  ---
+  duration_ms: 0.309604
+  type: 'test'
+  ...
+# Subtest: PASS flow: real verification -> order awaiting_payer, nothing settled yet
+ok 40 - PASS flow: real verification -> order awaiting_payer, nothing settled yet
+  ---
+  duration_ms: 74.691056
+  type: 'test'
+  ...
+# Subtest: full settle cycle through flat webhook with dedupe
+ok 41 - full settle cycle through flat webhook with dedupe
+  ---
+  duration_ms: 68.939409
+  type: 'test'
+  ...
+# Subtest: refusal: failing requirement creates no order, no mandate, no payment
+ok 42 - refusal: failing requirement creates no order, no mandate, no payment
+  ---
+  duration_ms: 67.35275
+  type: 'test'
+  ...
+# Subtest: real file_hash check passes on the pinned artifact
+ok 43 - real file_hash check passes on the pinned artifact
+  ---
+  duration_ms: 1.063328
+  type: 'test'
+  ...
+# Subtest: hash mismatch fails (verifier computed it, not the worker)
+ok 44 - hash mismatch fails (verifier computed it, not the worker)
+  ---
+  duration_ms: 0.198876
+  type: 'test'
+  ...
+# Subtest: path escape outside artifact root is blocked
+ok 45 - path escape outside artifact root is blocked
+  ---
+  duration_ms: 0.165699
+  type: 'test'
+  ...
+# Subtest: test_run executes the suite itself and passes on the fixture
+ok 46 - test_run executes the suite itself and passes on the fixture
+  ---
+  duration_ms: 63.898081
+  type: 'test'
+  ...
+# Subtest: test_run detects a failing suite
+ok 47 - test_run detects a failing suite
+  ---
+  duration_ms: 65.196472
+  type: 'test'
+  ...
+# Subtest: unknown check types and missing checks are UNMAPPED and block
+ok 48 - unknown check types and missing checks are UNMAPPED and block
+  ---
+  duration_ms: 0.178841
+  type: 'test'
+  ...
+# Subtest: empty requirements or missing artifact root block
+ok 49 - empty requirements or missing artifact root block
+  ---
+  duration_ms: 0.131789
+  type: 'test'
+  ...
+# Subtest: valid flat webhook accepted; replay deduped by request_id
+ok 50 - valid flat webhook accepted; replay deduped by request_id
+  ---
+  duration_ms: 4.274462
+  type: 'test'
+  ...
+# Subtest: field mismatch against the order is rejected
+ok 51 - field mismatch against the order is rejected
+  ---
+  duration_ms: 1.943308
+  type: 'test'
+  ...
+# Subtest: unknown payment_request_id rejected
+ok 52 - unknown payment_request_id rejected
+  ---
+  duration_ms: 1.171576
+  type: 'test'
+  ...
+# Subtest: bad signature and skew beyond 300s rejected
+ok 53 - bad signature and skew beyond 300s rejected
+  ---
+  duration_ms: 1.09233
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1020.53404
