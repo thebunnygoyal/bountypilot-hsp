@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BountyPilot HSP - verify the work, then pay for it</title>
+<style>
+  :root { --bg:#0d1117; --panel:#161b22; --line:#2b333d; --fg:#dce4ec; --dim:#8b96a1; --green:#3fb950; --orange:#f0b450; --blue:#588cff; --red:#ff6464; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--fg); font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:860px; margin:0 auto; padding:24px 18px 64px; }
+  .badges { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px; }
+  .badge { font:600 12px/1 ui-monospace,Menlo,monospace; padding:6px 10px; border-radius:20px; border:1px solid var(--line); color:var(--dim); }
+  .badge.sim { color:var(--orange); border-color:var(--orange); }
+  .badge.track { color:var(--blue); border-color:var(--blue); }
+  h1 { font-size:30px; line-height:1.25; margin-top:18px; }
+  h1 .thin { color:var(--dim); font-weight:400; }
+  h2 { font-size:20px; margin:36px 0 12px; }
+  p.lede { color:var(--dim); font-size:17px; margin-top:10px; max-width:640px; }
+  video { width:100%; border:1px solid var(--line); border-radius:10px; margin-top:14px; background:#000; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin-top:12px; }
+  .steps { counter-reset:s; }
+  .step { display:flex; gap:12px; margin-top:12px; }
+  .step .n { counter-increment:s; flex:0 0 28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--blue); font:700 14px/28px ui-monospace,monospace; text-align:center; }
+  .step .n::before { content:counter(s); }
+  .step p { flex:1; color:var(--fg); }
+  .step p b { color:#fff; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  @media (max-width:600px){ .grid{grid-template-columns:1fr;} h1{font-size:25px;} }
+  .real h3 { color:var(--green); font-size:15px; margin-bottom:8px; }
+  .mocked h3 { color:var(--orange); font-size:15px; margin-bottom:8px; }
+  ul { list-style:none; }
+  li { padding:5px 0 5px 22px; position:relative; color:var(--dim); font-size:15px; }
+  li::before { content:"-"; position:absolute; left:6px; color:var(--line); }
+  .real li::before { content:"+"; color:var(--green); }
+  .mocked li::before { content:"!"; color:var(--orange); }
+  code, .mono { font:13px/1.5 ui-monospace,Menlo,monospace; background:#0a0e13; border:1px solid var(--line); border-radius:6px; padding:2px 6px; color:var(--fg); }
+  pre { background:#0a0e13; border:1px solid var(--line); border-radius:10px; padding:14px 16px; overflow-x:auto; margin-top:12px; font:13px/1.7 ui-monospace,Menlo,monospace; color:var(--fg); }
+  pre .g { color:var(--green); } pre .r { color:var(--red); } pre .b { color:var(--blue); } pre .o { color:var(--orange); }
+  .note { border-left:3px solid var(--orange); padding:10px 14px; color:var(--dim); background:var(--panel); border-radius:0 8px 8px 0; margin-top:12px; font-size:15px; }
+  footer { margin-top:48px; padding-top:18px; border-top:1px solid var(--line); color:var(--dim); font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="badges">
+    <span class="badge track">HSK Chain Horizon Hackathon - Track 2: Agent Payments &amp; A2A Settlement (HSP)</span>
+    <span class="badge sim">SIMULATED HSP - NO LIVE FUNDS</span>
+  </div>
+
+  <h1>BountyPilot HSP<br><span class="thin">Verify the work, then pay for it.</span></h1>
+  <p class="lede">AI agents are starting to buy compute from each other. Today the buyer's agent pays on trust: the provider says "done" and the money moves. BountyPilot HSP is the buyer-side payment agent that checks the delivery itself - and only releases payment when the work passes the buyer's own acceptance tests.</p>
+
+  <h2>Demo (50 seconds)</h2>
+  <video controls preload="metadata" src="demo.mp4"></video>
+  <p class="lede" style="font-size:14px">A real transcode job is delivered and verified, then a tampered delivery is refused. The payment shown is a simulated settlement against a mock server that enforces the documented HSP contract - no real funds moved. <b>This website is a demo page: the video and the story. The product itself runs locally from the repository - there is no hosted compute service to try.</b></p>
+
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step"><div class="n"></div><p><b>Agree the job.</b> Buyer and provider agents fix the work and its acceptance conditions: format, duration, codec, plus any custom test script the buyer wants.</p></div>
+    <div class="step"><div class="n"></div><p><b>Provider delivers.</b> The compute provider runs the job and hands over the artifact.</p></div>
+    <div class="step"><div class="n"></div><p><b>Buyer verifies the delivery itself.</b> Our agent executes the acceptance checks on the artifact - not on the provider's word.</p></div>
+    <div class="step"><div class="n"></div><p><b>Only on PASS, pay.</b> The payment agent builds the HSP Payment Mandate and EIP-712-signs it (a generated development key in this demo; the human confirmation gates that would approve a real wallet signature are implemented and shown auto-approved), then submits through the HSP gateway flow. On FAIL, no payment order is ever created.</p></div>
+  </div>
+
+  <h2>What this build proves - and what it does not</h2>
+  <div class="grid">
+    <div class="card real"><h3>Real in this repo</h3>
+      <ul>
+        <li>Compute job: ffmpeg transcode runs for real in the demo</li>
+        <li>Verification: buyer-owned acceptance suite executes on the delivered file (ffprobe + custom tests)</li>
+        <li>EIP-712 mandate signing: real keccak/secp256k1 cryptography</li>
+        <li>HSP flow per the official guide: order, prepare, confirm gates, sign, finalize, submit, quote-expiry re-sign, status recovery, team attribution</li>
+        <li>Test suite: 53/53 passing, runs in about a second</li>
+      </ul>
+    </div>
+    <div class="card mocked"><h3>Not yet</h3>
+      <ul>
+        <li>Live HSP QA execution: organiser IP allowlisting and a 403 access issue are both unresolved; the demo settles against a mock enforcing the documented contract</li>
+        <li>Provenance, compute metering, creditworthiness: out of scope for the verifier today</li>
+        <li>Lending, staking, credit issuance: not claimed - that is the roadmap, not this build</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>The one-minute run</h2>
+  <pre><span class="b">$</span> npm install
+<span class="b">$</span> npm test            <span class="g"># 53/53 passing</span>
+<span class="b">$</span> npm run demo:compute
+<span class="g">PASS</span> req-output: file present: OUTPUT.opus
+<span class="g">PASS</span> req-acceptance: 1 tests passing (executed by verifier)
+verdict: <span class="g">PASS</span>  -&gt; HSP flow executes, simulated settlement
+...
+verdict: <span class="r">BLOCKED</span> <span class="r"># tampered delivery</span>
+payment created for bad delivery: <span class="g">NO</span></pre>
+
+  <h2>Why it matters</h2>
+  <p class="lede">Compute marketplaces between agents - and any future compute-credit layer - need an answer to one question before money moves: did the buyer actually get what it paid for? This repo is that evidence-and-settlement layer, built on HashKey's HSP.</p>
+
+  <div class="note">Status at submission: local prototype. Live HSP QA had not been demonstrated; organiser allowlisting and a 403 access issue were unresolved. No mainnet or testnet deployment of custom contracts is required by this design - settlement goes through HSP's gateway.</div>
+
+  <footer>
+    BountyPilot HSP - HSK Chain Horizon Hackathon (Mumbai Edition), Track 2. Code: see repository README. Demo video and this page describe a simulated settlement; no live funds were used at any point.
+  </footer>
+</div>
+</body>
+</html>
